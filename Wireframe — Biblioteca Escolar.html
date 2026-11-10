@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Wireframe — Biblioteca Escolar</title>
+<style>
+:root{--bg:#f4f4f2;--fg:#222;--line:#555;--soft:#e2e2de;--note:#8a5a00;--notebg:#fff4d6;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1d1d1c;--fg:#e8e8e4;--line:#9a9a94;--soft:#333330;--note:#f0c36a;--noteBg:#3a3118;--noteb:#3a3118}}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 "Trebuchet MS",Verdana,sans-serif}
+.wrap{max-width:980px;margin:0 auto;padding:16px}
+h1{font-size:18px;margin:0 0 4px}
+.sub{margin:0 0 14px;color:var(--line)}
+.frame{border:2px solid var(--line);border-radius:6px;background:var(--bg)}
+.top{display:flex;gap:0;border-bottom:2px solid var(--line);flex-wrap:wrap;align-items:center}
+.logo{padding:10px 14px;font-weight:bold;border-right:2px solid var(--line)}
+.top button{font:inherit;color:inherit;background:none;border:0;border-right:2px solid var(--line);padding:10px 16px;cursor:pointer}
+.top button[aria-selected="true"]{background:var(--soft);font-weight:bold}
+.top button:focus-visible{outline:3px solid var(--fg);outline-offset:-3px}
+.screen{display:none;padding:16px;gap:16px;grid-template-columns:minmax(220px,300px) 1fr}
+.screen.on{display:grid}
+@media (max-width:700px){.screen.on{grid-template-columns:1fr}}
+.box{border:2px dashed var(--line);border-radius:4px;padding:12px}
+.box h2{font-size:15px;margin:0 0 10px}
+label{display:block;font-size:13px;margin-bottom:2px}
+.field{border:2px solid var(--line);height:34px;margin-bottom:10px;padding:5px 8px;color:var(--line);font-size:13px;border-radius:3px}
+.btn{display:inline-block;border:2px solid var(--line);padding:6px 14px;font-weight:bold;border-radius:3px;background:var(--soft)}
+.btn.sm{padding:2px 8px;font-size:12px}
+.tbl{width:100%;border-collapse:collapse;font-size:14px}
+.tbl th,.tbl td{border:2px solid var(--line);padding:6px 8px;text-align:left}
+.tbl th{background:var(--soft)}
+.scroll{overflow-x:auto}
+.tag{border:2px solid var(--line);padding:0 6px;font-size:12px;border-radius:10px}
+.note{margin-top:10px;background:var(--noteb,#fff4d6);color:var(--note);border-left:4px solid var(--note);padding:6px 10px;font-size:12.5px}
+.legend{margin-top:14px;font-size:13px;color:var(--line)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Wireframe: Biblioteca Escolar</h1>
+  <p class="sub">Três telas em uma página só (SPA simples). Use o menu para alternar.</p>
+
+  <div class="frame">
+    <nav class="top" role="tablist" aria-label="Menu principal">
+      <span class="logo">[ logo ] Biblioteca</span>
+      <button role="tab" aria-selected="true" data-t="alunos">Alunos</button>
+      <button role="tab" aria-selected="false" data-t="livros">Livros</button>
+      <button role="tab" aria-selected="false" data-t="emprestimos">Empréstimos</button>
+    </nav>
+
+    <section class="screen on" id="alunos">
+      <div class="box">
+        <h2>Cadastrar aluno</h2>
+        <label>Nome</label><div class="field">Nome completo</div>
+        <label>Turma</label><div class="field">Ex.: 2ºA</div>
+        <span class="btn">Salvar aluno</span>
+        <div class="note">POST /api/alunos<br>Erro: campo vazio mostra aviso abaixo do campo.</div>
+      </div>
+      <div class="box">
+        <h2>Alunos cadastrados</h2>
+        <div class="scroll"><table class="tbl">
+          <tr><th>ID</th><th>Nome</th><th>Turma</th></tr>
+          <tr><td>1</td><td>Ana Souza</td><td>2ºA</td></tr>
+          <tr><td>2</td><td>Bruno Lima</td><td>1ºB</td></tr>
+          <tr><td>3</td><td>…</td><td>…</td></tr>
+        </table></div>
+        <div class="note">GET /api/alunos. Lista vazia: "Nenhum aluno cadastrado. Use o formulário ao lado."</div>
+      </div>
+    </section>
+
+    <section class="screen" id="livros">
+      <div class="box">
+        <h2>Cadastrar livro</h2>
+        <label>Título</label><div class="field">Título do livro</div>
+        <label>Autor</label><div class="field">Nome do autor</div>
+        <span class="btn">Salvar livro</span>
+        <div class="note">POST /api/livros<br>Todo livro novo nasce como disponível.</div>
+      </div>
+      <div class="box">
+        <h2>Acervo</h2>
+        <div class="scroll"><table class="tbl">
+          <tr><th>ID</th><th>Título</th><th>Autor</th><th>Situação</th></tr>
+          <tr><td>1</td><td>Dom Casmurro</td><td>Machado de Assis</td><td><span class="tag">Emprestado</span></td></tr>
+          <tr><td>2</td><td>Capitães da Areia</td><td>Jorge Amado</td><td><span class="tag">Disponível</span></td></tr>
+          <tr><td>3</td><td>…</td><td>…</td><td>…</td></tr>
+        </table></div>
+        <div class="note">GET /api/livros. Situação vem do campo <b>disponivel</b>.</div>
+      </div>
+    </section>
+
+    <section class="screen" id="emprestimos">
+      <div class="box">
+        <h2>Novo empréstimo</h2>
+        <label>Aluno</label><div class="field">Selecione o aluno ▾</div>
+        <label>Livro (só disponíveis)</label><div class="field">Selecione o livro ▾</div>
+        <label>Data do empréstimo</label><div class="field">Hoje (automática)</div>
+        <span class="btn">Registrar empréstimo</span>
+        <div class="note">POST /api/emprestimos<br>Livro indisponível: mensagem "Este livro já está emprestado."</div>
+      </div>
+      <div class="box">
+        <h2>Empréstimos</h2>
+        <div class="scroll"><table class="tbl">
+          <tr><th>ID</th><th>Aluno</th><th>Livro</th><th>Emprestado em</th><th>Devolvido em</th><th>Ação</th></tr>
+          <tr><td>1</td><td>Ana Souza</td><td>Dom Casmurro</td><td>09/11/2026</td><td>em aberto</td><td><span class="btn sm">Devolver</span></td></tr>
+          <tr><td>2</td><td>Bruno Lima</td><td>Capitães da Areia</td><td>02/11/2026</td><td>06/11/2026</td><td>—</td></tr>
+          <tr><td>3</td><td>…</td><td>…</td><td>…</td><td>…</td><td>…</td></tr>
+        </table></div>
+        <div class="note">GET /api/emprestimos. "Devolver" chama PUT /api/emprestimos/&lt;id&gt;/devolver e atualiza a linha e o acervo.</div>
+      </div>
+    </section>
+  </div>
+
+  <p class="legend">Caixa tracejada = área da tela. Caixa amarela = rota Flask usada e comportamento esperado.</p>
+</div>
+<script>
+const tabs=document.querySelectorAll('.top button');
+tabs.forEach(b=>b.addEventListener('click',()=>{
+  tabs.forEach(x=>x.setAttribute('aria-selected',x===b));
+  document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===b.dataset.t));
+}));
+</script>
+</body>
+</html>
