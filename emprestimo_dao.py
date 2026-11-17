@@ -1,42 +1,43 @@
 from datetime import date
 
-from database import get_connection
+from database import conexao
 from emprestimo import Emprestimo
 
 
 class EmprestimoDAO:
-    def registrar(self, emp):
-        """Cria o empréstimo e diminui o estoque do livro."""
-        with get_connection() as conn:
-            cur = conn.execute(
-                "UPDATE livro SET quantidade_disponivel = quantidade_disponivel - 1 "
-                "WHERE id = ? AND quantidade_disponivel > 0", (emp.livro_id,))
-            if cur.rowcount == 0:
-                raise ValueError("Livro indisponível.")
-            cur = conn.execute(
-                "INSERT INTO emprestimo (aluno_id, livro_id, data_emprestimo, data_prevista, status) "
-                "VALUES (?, ?, ?, ?, ?)",
-                (emp.aluno_id, emp.livro_id, emp.data_emprestimo, emp.data_prevista, emp.status))
-            emp.id = cur.lastrowid
-        return emp
-
     def listar(self):
-        with get_connection() as conn:
-            rows = conn.execute("SELECT * FROM emprestimo ORDER BY id DESC").fetchall()
-        return [Emprestimo(**dict(r)) for r in rows]
+        """Retorna dicts já com nome do aluno e título do livro (JOIN)."""
+        with conexao() as conn:
+            linhas = conn.execute(
+                """
+                SELECT e.*, a.nome AS aluno_nome, l.titulo AS livro_titulo
+                FROM emprestimo e
+                JOIN aluno a ON a.id = e.aluno_id
+                JOIN livro l ON l.id = e.livro_id
+                ORDER BY e.id DESC
+                """
+            ).fetchall()
+        return [dict(l) for l in linhas]
 
-    def buscar_por_id(self, emp_id):
-        with get_connection() as conn:
-            row = conn.execute("SELECT * FROM emprestimo WHERE id = ?", (emp_id,)).fetchone()
-        return Emprestimo(**dict(row)) if row else None
+    def registrar(self, aluno_id, livro_id):
+        """Cria o empréstimo e marca o livro como indisponível (mesma transação)."""
+        hoje = date.today().isoformat()
+        with conexao() as conn:
+            cur = conn.execute(
+                "INSERT INTO emprestimo (aluno_id, livro_id, data_emprestimo) VALUES (?, ?, ?)",
+                (aluno_id, livro_id, hoje),
+            )
+            conn.execute("UPDATE livro SET disponivel=0 WHERE id=?", (livro_id,))
+        return Emprestimo(aluno_id, livro_id, hoje, None, cur.lastrowid)
 
-    def devolver(self, emp):
-        """Marca como devolvido e devolve o exemplar ao estoque."""
-        emp.data_devolucao = date.today().isoformat()
-        emp.status = "DEVOLVIDO"
-        with get_connection() as conn:
-            conn.execute("UPDATE emprestimo SET data_devolucao = ?, status = ? WHERE id = ?",
-                         (emp.data_devolucao, emp.status, emp.id))
-            conn.execute("UPDATE livro SET quantidade_disponivel = quantidade_disponivel + 1 "
-                         "WHERE id = ?", (emp.livro_id,))
-        return emp
+    def devolver(self, id):
+        with conexao() as conn:
+            e = conn.execute("SELECT * FROM emprestimo WHERE id=?", (id,)).fetchone()
+            if e is None:
+                return "nao_encontrado"
+            if e["data_devolucao"] is not None:
+                return "ja_devolvido"
+            conn.execute("UPDATE emprestimo SET data_devolucao=? WHERE id=?",
+                         (date.today().isoformat(), id))
+            conn.execute("UPDATE livro SET disponivel=1 WHERE id=?", (e["livro_id"],))
+        return "ok"
