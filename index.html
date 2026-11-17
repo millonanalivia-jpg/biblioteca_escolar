@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Biblioteca Escolar</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header>
+    <h1>📚 Biblioteca Escolar</h1>
+    <nav>
+      <button class="aba ativa" data-aba="alunos">Alunos</button>
+      <button class="aba" data-aba="livros">Livros</button>
+      <button class="aba" data-aba="emprestimos">Empréstimos</button>
+    </nav>
+  </header>
+
+  <div id="mensagem" class="mensagem oculto"></div>
+
+  <main>
+    <!-- ALUNOS -->
+    <section id="alunos" class="painel">
+      <h2>Alunos</h2>
+      <form id="form-aluno">
+        <input type="hidden" id="aluno-id">
+        <input type="text" id="aluno-nome" placeholder="Nome" required>
+        <input type="text" id="aluno-matricula" placeholder="Matrícula" required>
+        <input type="text" id="aluno-turma" placeholder="Turma">
+        <button type="submit" id="aluno-salvar">Cadastrar</button>
+        <button type="button" id="aluno-cancelar" class="secundario oculto">Cancelar</button>
+      </form>
+      <table>
+        <thead><tr><th>Nome</th><th>Matrícula</th><th>Turma</th><th>Ações</th></tr></thead>
+        <tbody id="tabela-alunos"></tbody>
+      </table>
+    </section>
+
+    <!-- LIVROS -->
+    <section id="livros" class="painel oculto">
+      <h2>Livros</h2>
+      <form id="form-livro">
+        <input type="hidden" id="livro-id">
+        <input type="text" id="livro-titulo" placeholder="Título" required>
+        <input type="text" id="livro-autor" placeholder="Autor" required>
+        <input type="number" id="livro-ano" placeholder="Ano">
+        <button type="submit" id="livro-salvar">Cadastrar</button>
+        <button type="button" id="livro-cancelar" class="secundario oculto">Cancelar</button>
+      </form>
+      <table>
+        <thead><tr><th>Título</th><th>Autor</th><th>Ano</th><th>Status</th><th>Ações</th></tr></thead>
+        <tbody id="tabela-livros"></tbody>
+      </table>
+    </section>
+
+    <!-- EMPRÉSTIMOS -->
+    <section id="emprestimos" class="painel oculto">
+      <h2>Empréstimos</h2>
+      <form id="form-emprestimo">
+        <select id="emp-aluno" required></select>
+        <select id="emp-livro" required></select>
+        <button type="submit">Emprestar</button>
+      </form>
+      <table>
+        <thead><tr><th>Aluno</th><th>Livro</th><th>Empréstimo</th><th>Devolução</th><th>Ações</th></tr></thead>
+        <tbody id="tabela-emprestimos"></tbody>
+      </table>
+    </section>
+  </main>
+
+  <script src="/static/script.js"></script>
+</body>
+</html>
