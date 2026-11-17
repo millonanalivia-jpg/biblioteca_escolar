@@ -1,24 +1,40 @@
-from database import get_connection
+from database import conexao
 from livro import Livro
 
 
 class LivroDAO:
+    def listar(self):
+        with conexao() as conn:
+            linhas = conn.execute("SELECT * FROM livro ORDER BY titulo").fetchall()
+        return [Livro(l["titulo"], l["autor"], l["ano"], l["disponivel"], l["id"])
+                for l in linhas]
+
+    def buscar(self, id):
+        with conexao() as conn:
+            l = conn.execute("SELECT * FROM livro WHERE id=?", (id,)).fetchone()
+        if l is None:
+            return None
+        return Livro(l["titulo"], l["autor"], l["ano"], l["disponivel"], l["id"])
+
     def inserir(self, livro):
-        with get_connection() as conn:
+        with conexao() as conn:
             cur = conn.execute(
-                """INSERT INTO livro (titulo, autor, isbn, ano, quantidade_total, quantidade_disponivel)
-                   VALUES (?, ?, ?, ?, ?, ?)""",
-                (livro.titulo, livro.autor, livro.isbn, livro.ano,
-                 livro.quantidade_total, livro.quantidade_disponivel))
+                "INSERT INTO livro (titulo, autor, ano, disponivel) VALUES (?, ?, ?, 1)",
+                (livro.titulo, livro.autor, livro.ano),
+            )
             livro.id = cur.lastrowid
+        livro.disponivel = True
         return livro
 
-    def listar(self):
-        with get_connection() as conn:
-            rows = conn.execute("SELECT * FROM livro ORDER BY titulo").fetchall()
-        return [Livro(**dict(r)) for r in rows]
+    def atualizar(self, livro):
+        with conexao() as conn:
+            cur = conn.execute(
+                "UPDATE livro SET titulo=?, autor=?, ano=? WHERE id=?",
+                (livro.titulo, livro.autor, livro.ano, livro.id),
+            )
+        return cur.rowcount > 0
 
-    def buscar_por_id(self, livro_id):
-        with get_connection() as conn:
-            row = conn.execute("SELECT * FROM livro WHERE id = ?", (livro_id,)).fetchone()
-        return Livro(**dict(row)) if row else None
+    def excluir(self, id):
+        with conexao() as conn:
+            cur = conn.execute("DELETE FROM livro WHERE id=?", (id,))
+        return cur.rowcount > 0
