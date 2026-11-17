@@ -1,22 +1,38 @@
-from database import get_connection
+from database import conexao
 from aluno import Aluno
 
 
 class AlunoDAO:
+    def listar(self):
+        with conexao() as conn:
+            linhas = conn.execute("SELECT * FROM aluno ORDER BY nome").fetchall()
+        return [Aluno(l["nome"], l["matricula"], l["turma"], l["id"]) for l in linhas]
+
+    def buscar(self, id):
+        with conexao() as conn:
+            l = conn.execute("SELECT * FROM aluno WHERE id=?", (id,)).fetchone()
+        if l is None:
+            return None
+        return Aluno(l["nome"], l["matricula"], l["turma"], l["id"])
+
     def inserir(self, aluno):
-        with get_connection() as conn:
+        with conexao() as conn:
             cur = conn.execute(
-                "INSERT INTO aluno (nome, matricula, turma, email) VALUES (?, ?, ?, ?)",
-                (aluno.nome, aluno.matricula, aluno.turma, aluno.email))
+                "INSERT INTO aluno (nome, matricula, turma) VALUES (?, ?, ?)",
+                (aluno.nome, aluno.matricula, aluno.turma),
+            )
             aluno.id = cur.lastrowid
         return aluno
 
-    def listar(self):
-        with get_connection() as conn:
-            rows = conn.execute("SELECT * FROM aluno ORDER BY nome").fetchall()
-        return [Aluno(**dict(r)) for r in rows]
+    def atualizar(self, aluno):
+        with conexao() as conn:
+            cur = conn.execute(
+                "UPDATE aluno SET nome=?, matricula=?, turma=? WHERE id=?",
+                (aluno.nome, aluno.matricula, aluno.turma, aluno.id),
+            )
+        return cur.rowcount > 0
 
-    def buscar_por_id(self, aluno_id):
-        with get_connection() as conn:
-            row = conn.execute("SELECT * FROM aluno WHERE id = ?", (aluno_id,)).fetchone()
-        return Aluno(**dict(row)) if row else None
+    def excluir(self, id):
+        with conexao() as conn:
+            cur = conn.execute("DELETE FROM aluno WHERE id=?", (id,))
+        return cur.rowcount > 0
